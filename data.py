@@ -1,6 +1,5 @@
 import numpy as np
 import os, re
-from keras.utils import np_utils
 
 # Holds each note/chord corresponding to a number
 vocab = {}
@@ -27,6 +26,23 @@ def parse_abc(path, gensize, key="c", time_signature="4/4"):
             except IndexError:
                 return False
 
+def split_data(data, gensize):
+    char_len = len("".join(data))
+    vocab_keys = sorted(list(set(vocab.keys())))
+
+    data_x = []
+    data_y = []
+
+    for i in range(0, char_len - gensize):
+        if (i + gensize >= len(vocab_keys)):
+            break
+        inp = vocab_keys[i:i + gensize]
+        out = vocab_keys[i + gensize]
+        data_x.append([vocab[char] for char in inp])
+        data_y.append(vocab[out])
+
+    return data_x, data_y
+
 def load_data(gensize=320, vocab_threshold=5000, **kwargs):
     global vocab
     # Will hold the processed train and test data
@@ -43,28 +59,15 @@ def load_data(gensize=320, vocab_threshold=5000, **kwargs):
             vocab = {**vocab, **dict((c, i) for i, c in enumerate(x))}
         data.append("".join(x))
 
-    char_len = len("".join(data))
-    vocab_keys = sorted(list(set(vocab.keys())))
-
-    data_x = []
-    data_y = []
-
-    for i in range(0, char_len - gensize):
-        if (i + gensize >= len(vocab_keys)):
-            break
-        inp = vocab_keys[i:i + gensize]
-        out = vocab_keys[i + gensize]
-        data_x.append([vocab[char] for char in inp])
-        data_y.append(vocab[out])
+    x, y = split_data(data, gensize)
     # training data is now [patterns, size, 1]
-    training_x = np.reshape(data_x, (len(data_x), gensize, 1)) / float(len(vocab.keys()))
-    training_y = np.eye(len(vocab))[data_y]
+    training_x = np.reshape(x, (len(x), gensize, 1)) / float(len(vocab.keys()))
+    training_y = np.eye(len(vocab))[y]
 
-    print(training_x)
     print(training_x.shape)
     print("-------")
-    print(training_y)
     print(training_y.shape)
+
     return training_x, training_y
 
 # Split data into train and test
