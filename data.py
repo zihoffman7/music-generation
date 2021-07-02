@@ -6,6 +6,7 @@ vocab = {}
 vectorized = {}
  # Max length of the training vector
 GENSIZE = 500
+SEQ_LEN = 10
 # Max vocabulary that will be learned
 VOCAB_THRESHOLD = 2000
 
@@ -22,28 +23,31 @@ def parse_abc(path, gensize, key="c", time_signature="4/4"):
                 return False
             # Remove unnecessary abc characters and cut model to not exceed max length
             try:
-                return list(filter(lambda a: a != " " and a != "\n", re.split("(\s|\/|\||\n)", "".join(content[[i for i, s in enumerate(content) if "K:" in s or "%" in s or "C:" in s or "\n" == s][0] + 1:]).replace("\n", "").replace("\\", ""))))[:gensize]
+                return list(filter(lambda a: a != " " and a != "\n" and a != "/", re.split("(\s|\/|\||\n)", "".join(content[[i for i, s in enumerate(content) if "K:" in s][0] + 1:]).replace("\n", "").replace("\\", ""))))[:gensize]
             except IndexError:
                 return False
 
-def split_data(data, gensize):
-    char_len = len("".join(data))
-    vocab_keys = sorted(list(set(vocab.keys())))
+def split_data(data, gensize, seq_len):
+    char_len = len(data)
 
     data_x = []
     data_y = []
 
-    for i in range(0, char_len - gensize):
-        if (i + gensize >= len(vocab_keys)):
-            break
-        inp = vocab_keys[i:i + gensize]
-        out = vocab_keys[i + gensize]
-        data_x.append([vocab[char] for char in inp])
-        data_y.append(vocab[out])
-
+    for j in data:
+        for i in range(0, char_len - seq_len):
+            print(i)
+            if (i + seq_len >= len(j)):
+                break
+            inp = j[i:i + seq_len]
+            out = j[i + seq_len]
+            try:
+                data_x.append([vocab[char] for char in inp])
+                data_y.append(vocab[out])
+            except KeyError:
+                continue
     return data_x, data_y
 
-def load_data(gensize=320, vocab_threshold=5000, **kwargs):
+def load_data(gensize=320, vocab_threshold=5000, seq_len=50, **kwargs):
     global vocab
     # Will hold the processed train and test data
     data = []
@@ -56,22 +60,22 @@ def load_data(gensize=320, vocab_threshold=5000, **kwargs):
         for i in x:
             if len(vocab) + len(x) >= vocab_threshold:
                 break
-            vocab = {**vocab, **dict((c, i) for i, c in enumerate(x))}
-        data.append("".join(x))
+            vocab = {**vocab, **dict((c, i) for i, c in enumerate(x) if len(c))}
+        data.append(list(filter(lambda a: len(a), x)))
 
-    x, y = split_data(data, gensize)
+    x, y = split_data(data, gensize, seq_len)
+
     # training data is now [patterns, size, 1]
-    training_x = np.reshape(x, (len(x), gensize, 1)) / float(len(vocab.keys()))
+    training_x = np.reshape(x, (len(x), seq_len, 1)) / float(len(vocab.keys()))
     training_y = np.eye(len(vocab))[y]
 
     print(training_x.shape)
-    print("-------")
     print(training_y.shape)
 
     return training_x, training_y
 
 # Split data into train and test
-train_x, train_y = load_data(GENSIZE, VOCAB_THRESHOLD)
+train_x, train_y = load_data(GENSIZE, VOCAB_THRESHOLD, SEQ_LEN)
 
 
 # Data summary
