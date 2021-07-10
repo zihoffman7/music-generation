@@ -11,10 +11,11 @@ SEQ_LEN = 10
 VOCAB_THRESHOLD = 2000
 
 BATCH_SIZE = 128
-EPOCH_NUM = 50
+EPOCH_NUM = 75
 
 # Split data into train and test
 x, y = load_data(VOCAB_THRESHOLD, SEQ_LEN)
+print(f"length of data: {len(x)}")
 
 model = Sequential()
 # First LSTM
@@ -28,7 +29,7 @@ model.add(Dense(y.shape[1], activation="softmax"))
 # Compile the model
 model.compile(loss="categorical_crossentropy", optimizer="adam", metrics=["accuracy"])
 
-weights_save_path = "weights/50-epochs.hdf5"
+weights_save_path = "weights/75-epochs.hdf5"
 # Save weights if not saved already
 if not os.path.isfile(weights_save_path):
     checkpoint = ModelCheckpoint(weights_save_path, monitor="loss", verbose=1, save_best_only=True, mode="min")

@@ -89,5 +89,6 @@ def load_data(vocab_threshold=5000, seq_len=50, **kwargs):
                 if len(i) and i not in vocab.keys():
                     vocab[i] = len(vocab)
         data.append(s)
+    print(f"Vocab size: {len(vocab)}")
     # Get x and y data
     return shuffle_data(*split_data(data, seq_len))

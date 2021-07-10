@@ -17,13 +17,16 @@ def mid_to_abc(dir):
         s = s.transpose(interval.Interval(s.analyze("key").tonic, pitch.Pitch("C")))
         # Convert music21 stream object to MusicXML
         print("writing to xml")
-        s.write("xml", fp=f"{fname}.xml")
+        s.write("xml", fp=f"data/temp/{fname}.xml")
         # Convert MusicXML to abc using xml2abc
         print("converting to abc")
-        os.system(f"python xml2abc.py {fname}.xml -o data/abc")
+        os.system(f"python xml2abc.py data/temp/{fname}.xml -o data/abc")
         # Remove the temporary MusicXML file
-        os.remove(f"{fname}.xml")
     print("Done!")
+    for file in os.listdir("data/temp"):
+        os.remove(f"data/temp{file}")
+
+# mid_to_abc("data/midi")
 
 def output_to_abc(output, key):
     abc = f"""
