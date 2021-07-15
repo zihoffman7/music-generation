@@ -54,7 +54,6 @@ def split_data(data, seq_len):
                 except KeyError:
                     continue
                 continue
-
     # train x = [number of patterns, size of pattern, 1]
     data_x = np.reshape(data_x, (len(data_x), seq_len, 1))
     # Resize train x to be between zero and 1
@@ -81,13 +80,13 @@ def load_data(vocab_threshold=5000, seq_len=50, **kwargs):
         s = parse_abc(f"data/abc/{os.fsdecode(file)}", **kwargs)
         if not s:
             continue
-        for i in s:
+        for c, i in enumerate(s):
             # Ensure that the vocab threshold will not be exceeded
-            if len(vocab) + len(s) >= vocab_threshold:
+            if len(vocab) > vocab_threshold - 1:
+                s.pop(c)
                 break
-            for i in s:
-                if len(i) and i not in vocab.keys():
-                    vocab[i] = len(vocab)
+            if len(i) and i not in vocab.keys():
+                vocab[i] = len(vocab)
         data.append(s)
     print(f"Vocab size: {len(vocab)}")
     # Get x and y data

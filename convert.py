@@ -21,13 +21,11 @@ def mid_to_abc(dir):
         # Convert MusicXML to abc using xml2abc
         print("converting to abc")
         os.system(f"python xml2abc.py data/temp/{fname}.xml -o data/abc")
-        # Remove the temporary MusicXML file
     print("Done!")
+    # Remove the temporary MusicXML files
     for file in os.listdir("data/temp"):
-        os.remove(f"data/temp{file}")
-
-# mid_to_abc("data/midi")
-
+        os.remove(f"data/temp/{file}")
+        
 def output_to_abc(output, key):
     abc = f"""
 X:1
