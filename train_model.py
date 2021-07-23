@@ -4,7 +4,6 @@ from keras.models import Sequential
 from data import load_data
 import numpy as np
 import os
-import matplotlib.pyplot as plt
 
 # Length of patterns to be detected
 SEQ_LEN = 10
@@ -12,14 +11,14 @@ SEQ_LEN = 10
 VOCAB_THRESHOLD = 2000
 
 BATCH_SIZE = 128
-EPOCH_NUM = 700
+EPOCH_NUM = 250
 
 
 # Load x and y data for the model
 x, y = load_data(VOCAB_THRESHOLD, SEQ_LEN)
 
 print(f"length of data: {len(x)}")
-print((x.shape[1], x.shape[2]))
+
 model = Sequential()
 # First LSTM
 model.add(LSTM(256, input_shape=(x.shape[1], x.shape[2]), return_sequences=True))
@@ -39,16 +38,3 @@ if not os.path.isfile(weights_save_path):
     callbacks_list = [checkpoint]
 
     history = model.fit(x, y, epochs=EPOCH_NUM, batch_size=BATCH_SIZE, callbacks=callbacks_list)
-    plt.plot(history.history['accuracy'])
-    plt.title('model accuracy')
-    plt.ylabel('accuracy')
-    plt.xlabel('epoch')
-    plt.legend('train', loc='lower left')
-    plt.savefig('acc.png')
-    # summarize history for loss
-    plt.plot(history.history['loss'])
-    plt.title('model loss')
-    plt.ylabel('loss')
-    plt.xlabel('epoch')
-    plt.legend('train', loc='bottom left')
-    plt.savefig('loss.png')

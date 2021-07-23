@@ -32,20 +32,5 @@ def generate_melody(gen_size=56, key="C"):
         pattern = pattern[1:]
         pattern = np.append(pattern, index / len(vocab))
     output_to_abc(output, key)
-    elements_count = {}
-    # iterating over the elements for frequency
-    for element in output:
-       # checking whether it is in the dict or not
-       if element in elements_count:
-          # incerementing the count by 1
-          elements_count[element] += 1
-       else:
-          # setting the count to 1
-          elements_count[element] = 1
-    # printing the elements frequencies
-    for key, value in elements_count.items():
-       print(f"{key}: {value}")
 
 generate_melody(GEN_SIZE)
-# predict(GEN_SIZE)
-# predict(GEN_SIZE)
